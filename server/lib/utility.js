@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 // Hash the password
 async function hashPassword(plaintextPassword) {
     const hash = await bcrypt.hash(plaintextPassword, 10);
-    console.log(hash);
     return hash;
   }
    
