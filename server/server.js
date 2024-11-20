@@ -17,6 +17,19 @@ app.use(cors({
     credentials: true
   }));
 
+// session middleware
+app.use(session({
+  secret: 'hjbby^we643gDrsdf#9Hjdh',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    secure: false,  // Set to `true` if using HTTPS in production
+    sameSite: 'lax',  // Consider 'none' if client and server are on different origins
+    maxAge: 3600000 // 1 hour in milliseconds
+  }
+}));
+
 //routes
 app.use('/api/products', productRouter);
 app.use('/api/users', usersRouter);
