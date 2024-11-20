@@ -41,7 +41,6 @@ router.post('/signup', async (req,res) => {
   });
 
   // send a response
-
   res.json({ 'user': email });
 });
 
@@ -72,6 +71,9 @@ router.post('/login', async (req, res) => {
   }
 
   // setup user session data
+  req.session.user_id = existingUser.customer_id;
+  req.session.email = existingUser.email;
+  req.session.name = existingUser.first_name + ' ' + existingUser.last_name;
 
   res.send('Login successful for ' + email);
 });
