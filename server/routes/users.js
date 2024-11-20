@@ -73,17 +73,31 @@ router.post('/login', async (req, res) => {
   // setup user session data
   req.session.user_id = existingUser.customer_id;
   req.session.email = existingUser.email;
-  req.session.name = existingUser.first_name + ' ' + existingUser.last_name;
+  req.session.firstName = existingUser.first_name;
+  req.session.lastName = existingUser.last_name;
 
   res.send('Login successful for ' + email);
 });
 
 router.post('/logout', (req, res) => {
-    res.send('logout page');
+  req.session.destroy();
+  res.send('successful logout');
 });
 
 router.get('/getSession', (req, res) => {
-    res.send('get session page');
+
+  if (req.session.user_id) {
+    res.json({
+      user: {
+        id: req.session.user_id,
+        email: req.session.email,
+        firstName: req.session.firstName,
+        lastName: req.session.lastName,
+      },
+    });
+  } else {
+    res.status(401).send('not logged in');
+  }
 });
 
 export default router;
