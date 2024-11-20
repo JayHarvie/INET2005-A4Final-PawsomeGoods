@@ -33,8 +33,70 @@ router.get('/:id', async (req, res) => {
     res.json(product);
 });
 
-router.post('/purchase', (req, res) => {
-    res.send('purchase page');
+router.post('/purchase', async (req, res) => {
+    const { street, city, province, country, postal_code, 
+        credit_card, credit_expire, credit_cvv, cart, 
+        invoice_amt, invoice_tax, invoice_total } = req.body;
+
+    // check if the user is logged in
+    if (!req.session.user_id) {
+        return res.status(401).send('Unauthorized. Please login to complete purchase.');
+    }
+
+    // validate inputs
+    if (!street || !city || !province || !country || !postal_code || 
+        !credit_card || !credit_expire || !credit_cvv || 
+        !cart || !invoice_amt || !invoice_tax || !invoice_total) {
+        return res.status(400).send('Missing required fields');
+    }
+
+    // splitting the carts items and counting the quantity
+    const productList = cart.split(',');
+    const productCounts = {};
+
+    productList.forEach(product => {
+        if (productCounts[product]) {
+            productCounts[product]++;
+        } else {
+            productCounts[product] = 1;
+        }
+    });
+
+    const purchase = await prisma.purchase.create({
+        data: {
+            customer_id: req.session.user_id,
+            street: street,
+            city: city,
+            province: province,
+            country: country,
+            postal_code: postal_code,
+            credit_card: credit_card,
+            credit_expire: credit_expire,
+            credit_cvv: credit_cvv,
+            invoice_amt: invoice_amt,
+            invoice_tax: invoice_tax,
+            invoice_total: invoice_total,
+            order_date: new Date(),
+        },
+    });
+
+    // Create the PurchaseItem records for each product in the cart
+    const purchaseItems = Object.keys(productCounts).map(productId => {
+        return {
+            purchase_id: purchase.purchase_id,  // Link to the Purchase
+            product_id: parseInt(productId),    // Convert productId from string to integer
+            quantity: productCounts[productId]  // Quantity for this product
+        };
+    });
+
+    // Bulk create PurchaseItem records
+    await prisma.purchaseItem.createMany({
+        data: purchaseItems
+    });
+
+
+
+    res.send('purchase completed successfully');
 });
 
 export default router;
