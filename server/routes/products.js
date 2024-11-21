@@ -62,6 +62,7 @@ router.post('/purchase', async (req, res) => {
         }
     });
 
+    // create the purchase data set
     const purchase = await prisma.purchase.create({
         data: {
             customer_id: req.session.user_id,

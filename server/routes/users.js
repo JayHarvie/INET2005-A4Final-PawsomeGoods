@@ -1,11 +1,10 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { hash } from 'bcrypt';
-import { hashPassword, comparePassword } from '../lib/utility.js'
+import { hashPassword, comparePassword, schema } from '../lib/utility.js'
 
 
 const router = express.Router();
-
 const prisma = new PrismaClient();
 
 router.post('/signup', async (req,res) => {
@@ -15,6 +14,12 @@ router.post('/signup', async (req,res) => {
   // validate the inputs (to-do: validate email, enforce password policy)
   if(!email || !password || !first_name || !last_name) {
     return res.status(400).send('Missing required fields');
+  }
+
+  // Validate the password against the schema
+  const isValidPassword = schema.validate(password);
+  if (!isValidPassword) {
+    return res.status(400).send('Password does not meet the required policy');
   }
 
   // check for existing user
