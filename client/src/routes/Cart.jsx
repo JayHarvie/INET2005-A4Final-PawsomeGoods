@@ -106,7 +106,7 @@ export default function Cart() {
           </div>
         </div>
       ) : (
-        <p>Your cart is empty.</p>
+        <p className="text-center">Your cart is empty.</p>
       )}
     </div>
   );
