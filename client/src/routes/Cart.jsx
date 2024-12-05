@@ -1,9 +1,9 @@
-import { useCookies } from 'react-cookie';
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useCookies } from "react-cookie";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export default function Cart() {
-  const [cookies] = useCookies(['cart']); // Read the 'cart' cookie
+  const [cookies, setCookie] = useCookies(["cart"]); // Read and update 'cart' cookie
   const [cartItems, setCartItems] = useState([]);
   const [subTotal, setSubTotal] = useState(0);
   const [tax, setTax] = useState(0);
@@ -12,19 +12,23 @@ export default function Cart() {
   // Parse cart cookie and fetch product details
   useEffect(() => {
     async function fetchCartProducts() {
-      if (!cookies.cart) return;
+      const cart = cookies.cart ? String(cookies.cart) : "";
+
+      if (!cart) {
+        setCartItems([]);  // Clear cartItems when the cart is empty
+        return; // Exit early if the cart is empty
+      }
+
+      const productIds = cart.includes(",") ? cart.split(",") : [cart];
 
       const productCounts = {};
-      const productIds = cookies.cart.split(',');
 
-      // Count occurrences of each product ID
       productIds.forEach((id) => {
         productCounts[id] = (productCounts[id] || 0) + 1;
       });
 
       const uniqueIds = Object.keys(productCounts);
 
-      // Fetch product details for each unique ID
       const productDetails = await Promise.all(
         uniqueIds.map(async (id) => {
           const response = await fetch(`http://localhost:3000/api/products/${id}`);
@@ -40,22 +44,37 @@ export default function Cart() {
         })
       );
 
-      // Filter out any null (failed fetches) and update the state
       const validProducts = productDetails.filter((item) => item !== null);
       setCartItems(validProducts);
 
-      // Calculate sub-total
       const total = validProducts.reduce((sum, item) => sum + item.total, 0);
       setSubTotal(total);
 
-      // Calculate tax and grand total
       const calculatedTax = total * 0.15; // 15% tax
       setTax(calculatedTax);
       setGrandTotal(total + calculatedTax);
     }
 
     fetchCartProducts();
-  }, [cookies.cart]);
+  }, [cookies.cart]); // Depend only on cookies.cart to trigger re-fetch when it changes
+
+  const removeFromCart = (productId) => {
+    const cartString = cookies.cart ? String(cookies.cart) : "";
+    const currentCart = cartString.split(",");
+    const productIdStr = String(productId);
+
+    const index = currentCart.indexOf(productIdStr);
+    if (index !== -1) {
+      currentCart.splice(index, 1);
+    }
+
+    if (currentCart.length === 0) {
+      setCookie("cart", "", { maxAge: 0 }); // Clear the cookie immediately
+    } else {
+      const updatedCart = currentCart.join(",");
+      setCookie("cart", updatedCart, { maxAge: 3600 });
+    }
+  };
 
   return (
     <div className="cart-page">
@@ -70,6 +89,7 @@ export default function Cart() {
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Total</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -80,13 +100,16 @@ export default function Cart() {
                       src={`http://localhost:3000/images/${item.image_filename}`}
                       alt={item.name}
                       className="thumbnail"
-                      style={{ width: '100px', height: 'auto' }}
+                      style={{ width: "100px", height: "auto" }}
                     />
                   </td>
                   <td>{item.name}</td>
                   <td>${item.cost.toFixed(2)}</td>
                   <td>{item.quantity}</td>
                   <td>${item.total.toFixed(2)}</td>
+                  <td>
+                    <button onClick={() => removeFromCart(item.product_id)} className="btn btn-danger">Remove</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -100,7 +123,7 @@ export default function Cart() {
             <Link to="/Home" className="btn btn-secondary">
               Continue Shopping
             </Link>
-            <Link to="/Checkout" className="btn btn-primary" style={{ marginLeft: '1rem' }}>
+            <Link to="/Checkout" className="btn btn-primary" style={{ marginLeft: "1rem" }}>
               Complete Purchase
             </Link>
           </div>

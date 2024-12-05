@@ -37,10 +37,7 @@ model Purchase {
   credit_card  String
   credit_expire String
   credit_cvv   String
-  invoice_amt  String
-  invoice_tax  String
-  invoice_total String
-  order_date   DateTime
+  order_date   DateTime @default(now())
 }
 
 model PurchaseItem {

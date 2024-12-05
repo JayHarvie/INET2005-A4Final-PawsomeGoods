@@ -77,7 +77,6 @@ router.post('/purchase', async (req, res) => {
             invoice_amt: invoice_amt,
             invoice_tax: invoice_tax,
             invoice_total: invoice_total,
-            order_date: new Date(),
         },
     });
 

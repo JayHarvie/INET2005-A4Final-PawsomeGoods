@@ -6,12 +6,14 @@ export default function Signup() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(""); // For displaying server-side error messages
+  const apiHost = import.meta.env.VITE_API_HOST;
+  const apiUrl = `${apiHost}/api/users/signup`
 
   // Form submit function
   async function formSubmit(data) {
     setServerError(""); // Clear previous errors
     try {
-      const response = await fetch("http://localhost:3000/api/users/signup", {
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
