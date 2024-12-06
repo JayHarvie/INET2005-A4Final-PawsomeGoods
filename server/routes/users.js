@@ -78,8 +78,16 @@ router.post('/login', async (req, res) => {
 
   console.log('Session after login:', req.session); // Log session after login to verify
 
-  res.send('Login successful for ' + email);
+  // Ensure the session is saved
+  req.session.save((err) => {
+    if (err) {
+      console.error('Error saving session:', err);
+      return res.status(500).send('Internal Server Error');
+    }
+    res.send('Login successful for ' + email);
+  });
 });
+
 
 
 
@@ -89,8 +97,7 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/getSession', (req, res) => {
-  console.log('Session data:', req.session); // Log session data to verify it's accessible
-
+  console.log('Full session object:', req.session); // Log full session
   if (req.session.user_id) {
     res.json({
       user: {
@@ -104,7 +111,5 @@ router.get('/getSession', (req, res) => {
     res.status(401).send('Not logged in');
   }
 });
-
-
 
 export default router;

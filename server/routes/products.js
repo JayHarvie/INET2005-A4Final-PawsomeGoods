@@ -38,6 +38,7 @@ router.post('/purchase', async (req, res) => {
         credit_card, credit_expire, credit_cvv, cart, 
         } = req.body;
 
+
     // check if the user is logged in
     if (!req.session.user_id) {
         return res.status(401).send('Unauthorized. Please login to complete purchase.');

@@ -14,22 +14,24 @@ app.use(express.static('public'));
 
 // CORS middleware
 app.use(cors({
-  origin: 'http://localhost:5173',  // React frontend URL
-  credentials: true, // Allow cookies to be sent
+  origin: 'http://localhost:5173',
+  credentials: true,
 }));
+
 
 // Session middleware
 app.use(session({
-  secret: 'your_secret_key',
+  secret: 'hjbby^we643gDrsdf#9Hjdh',
   resave: false,
-  saveUninitialized: false,  // Save sessions only when there is data
+  saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false, // Set to true in production when using https
-    sameSite: 'lax', // or 'strict', depending on your needs
-    maxAge: 3600000,  // Session expiration time
+    secure: false,
+    sameSite: 'lax',
+    maxAge: 3600000,
   },
 }));
+
 
 
 // Routes
