@@ -7,34 +7,35 @@ import productRouter from './routes/products.js';
 const port = process.env.PORT || 3000;
 const app = express();
 
-//middleware
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// cors middleware
+// CORS middleware
 app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
-  }));
-
-// session middleware
-app.use(session({
-  secret: 'hjbby^we643gDrsdf#9Hjdh',
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    httpOnly: true,
-    secure: false,  // Set to `true` if using HTTPS in production
-    sameSite: 'lax',  // Consider 'none' if client and server are on different origins
-    maxAge: 3600000 // 1 hour in milliseconds
-  }
+  origin: 'http://localhost:5173',  // React frontend URL
+  credentials: true, // Allow cookies to be sent
 }));
 
-//routes
+// Session middleware
+app.use(session({
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: false,  // Save sessions only when there is data
+  cookie: {
+    httpOnly: true,
+    secure: false, // Set to true in production when using https
+    sameSite: 'lax', // or 'strict', depending on your needs
+    maxAge: 3600000,  // Session expiration time
+  },
+}));
+
+
+// Routes
 app.use('/api/products', productRouter);
 app.use('/api/users', usersRouter);
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });

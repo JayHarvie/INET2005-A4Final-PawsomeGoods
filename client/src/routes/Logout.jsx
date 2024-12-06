@@ -3,22 +3,31 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 
 export default function Logout() {
   const navigate = useNavigate();
-  const setIsLoggedIn = useOutletContext(); // Access setIsLoggedIn
+  const { isLoggedIn, setIsLoggedIn } = useOutletContext(); // Destructure from the context object
   const apiHost = import.meta.env.VITE_API_HOST;
   const apiUrl = `${apiHost}/api/users/logout`;
 
   useEffect(() => {
     async function logoutUser() {
       try {
-        await fetch(apiUrl, { method: "POST", credentials: "include" });
-        setIsLoggedIn(false); // Set login state to false
+        const response = await fetch(apiUrl, { 
+          method: "POST", 
+          credentials: "include" 
+        });
+
+        if (!response.ok) {
+          throw new Error(`Logout failed: ${response.statusText}`);
+        }
+
+        setIsLoggedIn(false); // Update login state
+        console.log("User successfully logged out.");
       } catch (error) {
         console.error("Error during logout:", error);
       }
     }
 
     logoutUser();
-  }, [apiUrl, setIsLoggedIn]);
+  }, [apiUrl, isLoggedIn, setIsLoggedIn]);
 
   return (
     <div className="d-flex flex-column align-items-center vh-100">

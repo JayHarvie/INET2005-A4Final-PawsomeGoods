@@ -50,39 +50,38 @@ router.post('/signup', async (req,res) => {
 });
 
 router.post('/login', async (req, res) => {
+  console.log('Session before login:', req.session); // Check session data before login
 
-    // get user inputs
-  const {email, password} = req.body;
+  const { email, password } = req.body;
 
-  // validate the inputs
   if (!email || !password) {
     return res.status(400).send('missing required fields');
   }
 
-  // find user in database
   const existingUser = await prisma.customer.findUnique({
-    where: {
-      email: email,
-    }
+    where: { email: email },
   });
   if (!existingUser) {
     return res.status(401).send('User not found');
   }
 
-  // compare/verify the password entered
   const passwordMatch = await comparePassword(password, existingUser.password);
   if (!passwordMatch) {
     return res.status(401).send('Invalid password');
   }
 
-  // setup user session data
+  // Set session data
   req.session.user_id = existingUser.customer_id;
   req.session.email = existingUser.email;
   req.session.firstName = existingUser.first_name;
   req.session.lastName = existingUser.last_name;
 
+  console.log('Session after login:', req.session); // Log session after login to verify
+
   res.send('Login successful for ' + email);
 });
+
+
 
 router.post('/logout', (req, res) => {
   req.session.destroy();
@@ -90,6 +89,7 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/getSession', (req, res) => {
+  console.log('Session data:', req.session); // Log session data to verify it's accessible
 
   if (req.session.user_id) {
     res.json({
@@ -101,8 +101,10 @@ router.get('/getSession', (req, res) => {
       },
     });
   } else {
-    res.status(401).send('not logged in');
+    res.status(401).send('Not logged in');
   }
 });
+
+
 
 export default router;

@@ -36,7 +36,7 @@ router.get('/:id', async (req, res) => {
 router.post('/purchase', async (req, res) => {
     const { street, city, province, country, postal_code, 
         credit_card, credit_expire, credit_cvv, cart, 
-        invoice_amt, invoice_tax, invoice_total } = req.body;
+        } = req.body;
 
     // check if the user is logged in
     if (!req.session.user_id) {
@@ -46,7 +46,7 @@ router.post('/purchase', async (req, res) => {
     // validate inputs
     if (!street || !city || !province || !country || !postal_code || 
         !credit_card || !credit_expire || !credit_cvv || 
-        !cart || !invoice_amt || !invoice_tax || !invoice_total) {
+        !cart) {
         return res.status(400).send('Missing required fields');
     }
 
@@ -74,9 +74,7 @@ router.post('/purchase', async (req, res) => {
             credit_card: credit_card,
             credit_expire: credit_expire,
             credit_cvv: credit_cvv,
-            invoice_amt: invoice_amt,
-            invoice_tax: invoice_tax,
-            invoice_total: invoice_total,
+            
         },
     });
 
